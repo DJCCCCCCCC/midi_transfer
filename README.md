@@ -46,6 +46,25 @@ AstrBot WebUI 中可设置 `max_file_size_mb`，默认 `50`。超出限制的附
 - `File` 组件的实际发送能力取决于平台适配器；QQ OneBot（aiocqhttp）通常是优先支持目标。
 - 服务器需要足够的 CPU、内存和磁盘临时空间。较长音频会显著增加推理时间。
 
+## 参考文献与致谢
+
+本插件基于以下开源项目和技术：
+
+1. Spotify Basic Pitch：音频到 MIDI 的自动音乐转录模型与工具。
+   - 论文：Jesse Engel et al., *Reducing the Need for Music Transcription Data Using Weakly Supervised Learning*，ISMIR 2020。
+   - 项目地址：https://github.com/spotify/basic-pitch
+   - Python 包文档：https://basicpitch.spotify.com/
+2. AstrBot：提供插件运行时、消息处理和文件发送能力。
+   - 项目地址：https://github.com/AstrBotDevs/AstrBot
+3. TensorFlow Lite：本插件在 Windows 环境中使用的 Basic Pitch 推理后端。
+   - 项目地址：https://www.tensorflow.org/lite
+
+Basic Pitch、AstrBot、TensorFlow 及其依赖项均遵循各自项目声明的许可证。本插件不改变或重新分发这些第三方项目的许可证条款；使用时请同时遵守其许可证和版权声明。
+
+## 开源协议
+
+本插件自身采用 GNU Affero General Public License v3.0（AGPL-3.0-only），详见 [`LICENSE`](LICENSE)。如修改本插件并通过网络向用户提供服务，请遵守 AGPL v3 对相应源代码提供的要求。
+
 ## 开发验证
 
 修改插件后，在 AstrBot WebUI 的插件管理页面重新加载插件。测试时分别覆盖：合法音频、损坏文件、超过大小限制的文件、无音符音频，以及不支持扩展名。
