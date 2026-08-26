@@ -1,8 +1,5 @@
 # Basic Pitch 0.4.0 provides a Python wheel and avoids legacy NumPy builds.
 # resampy imported by Basic Pitch still requires pkg_resources, removed in setuptools 81.
 setuptools<81
-numpy>=1.23.5,<1.27
-numba==0.59.1
-llvmlite==0.42.0
-basic-pitch==0.4.0
+basic-pitch
 httpx>=0.24.0

@@ -20,7 +20,7 @@ AstrBot 插件：接收聊天中上传的音乐音频，调用 Spotify Basic Pit
 python -m pip install --prefer-binary -r requirements.txt --index-url https://pypi.org/simple
 ```
 
-本插件固定使用 `basic-pitch==0.4.0`、`numba==0.59.1`、`llvmlite==0.42.0` 与 `numpy<1.27`。请使用与 AstrBot 相同的 Python 环境安装依赖，不要执行不带版本约束的 `pip install basic-pitch` 或升级 Numba，否则可能安装 Numba 0.67 等与 Basic Pitch 0.4.0 的 librosa 版本不兼容的组合，并在 Linux 上出现 `get_call_template` 错误：
+本插件使用当前可用的 `basic-pitch` 版本。为避免影响 AstrBot 共享 Python 环境中的其他插件，本插件不再强制指定 NumPy、Numba 和 llvmlite 版本。请使用与 AstrBot 相同的 Python 环境安装依赖。
 
 ```bash
 python -m pip install --upgrade pip wheel --index-url https://pypi.org/simple --no-cache-dir
@@ -31,9 +31,9 @@ python -m pip install --prefer-binary -r requirements.txt --index-url https://py
 
 ### 共享环境依赖冲突
 
-AstrBot 的插件通常共用同一个 Python 环境。安装本插件会在该共享环境中固定 `numba==0.59.1`、`llvmlite==0.42.0` 和 `numpy<1.27`，以确保 Basic Pitch 0.4.0 在 Linux/Python 3.11 上可以运行。大多数普通插件不受影响；但若其他音频、科学计算或机器学习插件要求 `numba>=0.60`、不同版本的 `llvmlite`，或 `numpy>=2`，依赖版本可能冲突。
+AstrBot 的插件通常共用同一个 Python 环境。本插件不再强制指定 NumPy、Numba 和 llvmlite 的版本，以避免降低或升级其他音频、科学计算、机器学习插件所需的依赖版本。
 
-部署了这类插件的服务器，建议在安装前检查现有依赖，或将本插件改为调用独立 Python 虚拟环境中的 Basic Pitch，以隔离 TensorFlow、Numba、Librosa 等依赖。
+代价是某些旧版 Basic Pitch 与较新 Numba/Librosa 组合在 Linux 上可能不兼容，例如出现 `get_call_template` 错误。若发生此问题，请在服务器环境中按实际 Basic Pitch 版本安装其兼容的 NumPy、Numba 和 llvmlite 组合，或将 MIDI 转换迁移到独立 Python 虚拟环境中，以完全隔离 TensorFlow、Numba 和 Librosa 依赖。
 
 ## 配置
 
