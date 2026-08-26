@@ -163,12 +163,13 @@ class MidiTransfer(Star):
     def _run_basic_pitch(self, input_path: Path, output_dir: Path) -> None:
         with self._inference_log_context():
             try:
-                from basic_pitch.inference import predict_and_save
+                import basic_pitch.inference as basic_pitch_inference
             except ImportError as exc:
                 raise ValueError(
                     "未安装 basic-pitch，请先安装 requirements.txt 中的依赖"
                 ) from exc
 
+            self._patch_basic_pitch_audio_loader(basic_pitch_inference)
             model = self._get_model()
             kwargs: dict[str, Any] = {
                 "save_midi": True,
@@ -178,7 +179,49 @@ class MidiTransfer(Star):
             }
             if model is not None:
                 kwargs["model_or_model_path"] = model
-            predict_and_save([str(input_path)], str(output_dir), **kwargs)
+            basic_pitch_inference.predict_and_save([str(input_path)], str(output_dir), **kwargs)
+
+    @staticmethod
+    def _patch_basic_pitch_audio_loader(basic_pitch_inference: Any) -> None:
+        if getattr(basic_pitch_inference, "_astrbot_safe_audio_loader", False):
+            return
+
+        def load_audio(path: str, sr: int | None = None, mono: bool = True, **_: Any):
+            import math
+
+            import numpy as np
+            from scipy.signal import resample_poly
+
+            try:
+                import soundfile as sf
+
+                samples, source_rate = sf.read(path, dtype="float32", always_2d=True)
+                audio = samples.T
+            except Exception:
+                import audioread
+
+                with audioread.audio_open(path) as source:
+                    source_rate = source.samplerate
+                    chunks = [np.frombuffer(chunk, dtype="<i2") for chunk in source]
+                    if not chunks:
+                        raise ValueError("音频文件为空或无法解码")
+                    audio = np.concatenate(chunks).reshape(-1, source.channels).T
+                    audio = audio.astype(np.float32) / 32768.0
+
+            if mono:
+                audio = np.mean(audio, axis=0, dtype=np.float32)
+            if sr is not None and source_rate != sr:
+                divisor = math.gcd(int(source_rate), int(sr))
+                audio = resample_poly(
+                    audio,
+                    int(sr) // divisor,
+                    int(source_rate) // divisor,
+                    axis=-1,
+                ).astype(np.float32, copy=False)
+            return audio.astype(np.float32, copy=False), source_rate
+
+        basic_pitch_inference.librosa.load = load_audio
+        basic_pitch_inference._astrbot_safe_audio_loader = True
 
     @contextlib.contextmanager
     def _inference_log_context(self):
