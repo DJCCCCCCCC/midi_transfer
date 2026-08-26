@@ -20,7 +20,7 @@ AstrBot 插件：接收聊天中上传的音乐音频，调用 Spotify Basic Pit
 python -m pip install --prefer-binary -r requirements.txt --index-url https://pypi.org/simple
 ```
 
-本插件固定使用 `basic-pitch==0.4.0`。请使用与 AstrBot 相同的 Python 环境安装依赖，不要执行不带版本约束的 `pip install basic-pitch`，否则 pip 可能回退到需要构建旧版 NumPy 的 Basic Pitch 版本：
+本插件固定使用 `basic-pitch==0.4.0`、`numba==0.59.1`、`llvmlite==0.42.0` 与 `numpy<1.27`。请使用与 AstrBot 相同的 Python 环境安装依赖，不要执行不带版本约束的 `pip install basic-pitch` 或升级 Numba，否则可能安装 Numba 0.67 等与 Basic Pitch 0.4.0 的 librosa 版本不兼容的组合，并在 Linux 上出现 `get_call_template` 错误：
 
 ```bash
 python -m pip install --upgrade pip wheel --index-url https://pypi.org/simple --no-cache-dir
