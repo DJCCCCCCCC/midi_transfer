@@ -1,0 +1,14 @@
+{
+  "max_file_size_mb": {
+    "type": "int",
+    "description": "允许处理的最大音频大小（MB）",
+    "default": 50,
+    "hint": "建议根据服务器内存设置，范围 1-500。"
+  },
+  "suppress_inference_logs": {
+    "type": "bool",
+    "description": "抑制 Basic Pitch 推理日志",
+    "default": true,
+    "hint": "隐藏 TensorFlow、Numba 和 Basic Pitch 的初始化与调试输出，并在 Windows 上禁用可能导致 0xC0000005 崩溃的 Numba JIT；转换错误仍会正常显示。"
+  }
+}

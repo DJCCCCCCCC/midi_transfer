@@ -1,14 +1,51 @@
-# astrbot-plugin-helloworld
+# Basic Pitch 音频转 MIDI
 
-AstrBot 插件模板 / A template plugin for AstrBot plugin feature
+AstrBot 插件：接收聊天中上传的音乐音频，调用 Spotify Basic Pitch 转录为标准 MIDI，然后将 `.mid` 文件发送回当前会话。
 
-> [!NOTE]
-> This repo is just a template of [AstrBot](https://github.com/AstrBotDevs/AstrBot) Plugin.
-> 
-> [AstrBot](https://github.com/AstrBotDevs/AstrBot) is an agentic assistant for both personal and group conversations. It can be deployed across dozens of mainstream instant messaging platforms, including QQ, Telegram, Feishu, DingTalk, Slack, LINE, Discord, Matrix, etc. In addition, it provides a reliable and extensible conversational AI infrastructure for individuals, developers, and teams. Whether you need a personal AI companion, an intelligent customer support agent, an automation assistant, or an enterprise knowledge base, AstrBot enables you to quickly build AI applications directly within your existing messaging workflows.
+## 功能
 
-# Supports
+- 支持 `.mp3`、`.wav`、`.flac`、`.m4a`、`.ogg`。
+- 仅在执行 `/midi` 时转换：可在同一消息附加音频，或引用一条音频消息后发送 `/midi`。
+- 转录计算在线程中执行，不阻塞 AstrBot 的异步消息循环。
+- 缓存 Basic Pitch 模型，避免每个任务重复加载。
+- 限制下载和处理的文件大小，临时文件会在任务结束后清理。
 
-- [AstrBot Repo](https://github.com/AstrBotDevs/AstrBot)
-- [AstrBot Plugin Development Docs (Chinese)](https://docs.astrbot.app/dev/star/plugin-new.html)
-- [AstrBot Plugin Development Docs (English)](https://docs.astrbot.app/en/dev/star/plugin-new.html)
+## 安装
+
+本插件**必须使用 Python 3.11** 的 AstrBot 运行环境。`basic-pitch==0.4.0` 所依赖的 TensorFlow 2.15 没有可用的 Python 3.12 或 3.13 Windows 发行包，因此 Python 3.12/3.13 环境无法安装或运行此插件。
+
+通过 AstrBot WebUI 的插件管理页安装插件时，AstrBot 会自动检查并安装根目录 `requirements.txt` 中缺失的依赖。手动将本目录放入 AstrBot 的 `data/plugins/` 后，请在 AstrBot 使用的 Python 3.11 环境中手动安装：
+
+```bash
+python -m pip install --prefer-binary -r requirements.txt --index-url https://pypi.org/simple
+```
+
+本插件固定使用 `basic-pitch==0.4.0`。请使用与 AstrBot 相同的 Python 环境安装依赖，不要执行不带版本约束的 `pip install basic-pitch`，否则 pip 可能回退到需要构建旧版 NumPy 的 Basic Pitch 版本：
+
+```bash
+python -m pip install --upgrade pip wheel --index-url https://pypi.org/simple --no-cache-dir
+python -m pip install --prefer-binary -r requirements.txt --index-url https://pypi.org/simple --no-cache-dir
+```
+
+请固定使用 Python 3.11，例如 `D:\桌面\Code\AstrBot\.venv311\Scripts\python.exe`。首次转录会加载随 `basic-pitch` 安装的模型，可能需要较长初始化时间。不要额外安装 `basic-pitch[tf]`：本插件会使用安装包附带的 TFLite 模型，以避开 TensorFlow SavedModel 的兼容性问题。
+
+## 配置
+
+AstrBot WebUI 中可设置 `max_file_size_mb`，默认 `50`。超出限制的附件会被拒绝下载和转换。
+
+## 使用
+
+1. 在 QQ、Telegram 或其他支持文件消息的适配器中发送支持的音频文件。
+2. 引用这条音频消息并发送 `/midi`，或在携带音频附件的消息中发送 `/midi`。
+3. 插件回复“正在转换音频，请稍候……”。
+4. 成功后，机器人发送名为 `原文件名_YYYYMMDD_HHMMSS.mid` 的 MIDI 文件。
+
+## 限制
+
+- Basic Pitch 更适合清晰的单乐器或较简单音乐素材；复杂混音、人声和非音乐音频可能产生空 MIDI 或不准确结果。
+- `File` 组件的实际发送能力取决于平台适配器；QQ OneBot（aiocqhttp）通常是优先支持目标。
+- 服务器需要足够的 CPU、内存和磁盘临时空间。较长音频会显著增加推理时间。
+
+## 开发验证
+
+修改插件后，在 AstrBot WebUI 的插件管理页面重新加载插件。测试时分别覆盖：合法音频、损坏文件、超过大小限制的文件、无音符音频，以及不支持扩展名。

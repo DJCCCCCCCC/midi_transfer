@@ -1,6 +1,11 @@
-name: helloworld # 插件唯一识别名，以 astrbot_plugin_ 前缀开头
-display_name: helloworld # 用于展示的名字，可以是方便人类阅读的名字（需要版本 >= v4.5.0，低版本不会报错，请放心填写）
-desc: AstrBot 插件示例。 # 插件简短描述
-version: v1.3.0 # 插件版本号。格式：v1.1.1 或者 v1.1
-author: Soulter # 作者
-repo: https://github.com/Soulter/helloworld # 插件的仓库地址
+name: astrbot_plugin_midi_transfer
+display_name: Basic Pitch 音频转 MIDI
+desc: 接收聊天中的音频文件，使用 Spotify Basic Pitch 转换为 MIDI 并发送回来。
+version: 1.0.0
+author: AstrBot Community
+repo: https://github.com/DJCCCCCCCC/midi_transfer
+astrbot_version: ">=4.16,<5"
+support_platforms:
+  - aiocqhttp
+  - telegram
+  - lark
