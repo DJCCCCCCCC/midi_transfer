@@ -58,7 +58,7 @@ class MidiTransfer(Star):
     @filter.command("midi")
     async def midi_command(self, event: AstrMessageEvent):
         """将本条消息中的音频转换为 MIDI。"""
-        audio = self._find_audio(event.get_messages())
+        audio = await self._find_audio(event.get_messages())
         if audio is None:
             yield event.plain_result(
                 "请引用或附加 mp3、wav、flac、m4a、ogg 音频后再发送 /midi。"
@@ -252,7 +252,7 @@ class MidiTransfer(Star):
         return self._model
 
     @classmethod
-    def _find_audio(cls, messages: Any) -> dict[str, str] | None:
+    async def _find_audio(cls, messages: Any) -> dict[str, str] | None:
         if not isinstance(messages, (list, tuple)):
             messages = [messages]
         for message in messages:
@@ -260,24 +260,29 @@ class MidiTransfer(Star):
             # Reply component's chain, so `/midi` can target quoted audio.
             quoted_chain = getattr(message, "chain", None)
             if quoted_chain:
-                audio = cls._find_audio(quoted_chain)
+                audio = await cls._find_audio(quoted_chain)
                 if audio is not None:
                     return audio
 
             name = getattr(message, "name", None) or getattr(message, "file_name", None)
-            path = getattr(message, "path", None) or getattr(message, "file", None)
+            local_path = getattr(message, "path", None) or getattr(message, "file_", None)
             url = getattr(message, "url", None)
-            if isinstance(path, Path):
-                path = str(path)
-            if not any(isinstance(value, str) for value in (name, path, url)):
+            if isinstance(local_path, Path):
+                local_path = str(local_path)
+            candidate = str(name or local_path or urlparse(str(url)).path).lower()
+            if Path(candidate).suffix not in SUPPORTED_EXTENSIONS:
                 continue
-            candidate = str(name or path or urlparse(str(url)).path).lower()
-            if Path(candidate).suffix in SUPPORTED_EXTENSIONS:
-                return {
-                    "name": str(name or Path(candidate).name),
-                    "path": str(path or ""),
-                    "url": str(url or ""),
-                }
+
+            get_file = getattr(message, "get_file", None)
+            if callable(get_file):
+                local_path = await get_file()
+            if not local_path and not url:
+                continue
+            return {
+                "name": str(name or Path(candidate).name),
+                "path": str(local_path or ""),
+                "url": str(url or ""),
+            }
         return None
 
     @staticmethod
