@@ -1,7 +1,7 @@
 name: astrbot_plugin_midi_transfer
 display_name: Basic Pitch 音频转 MIDI
 desc: 接收聊天中的音频文件，使用 Spotify Basic Pitch 转换为 MIDI 并发送回来。
-version: 1.0.2
+version: 1.0.3
 author: AstrBot Community
 tags:
   - audio

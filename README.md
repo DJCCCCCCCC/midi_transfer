@@ -20,7 +20,7 @@ AstrBot 插件：接收聊天中上传的音乐音频，调用 Spotify Basic Pit
 python -m pip install --prefer-binary -r requirements.txt --index-url https://pypi.org/simple
 ```
 
-本插件使用当前可用的 `basic-pitch` 版本，并固定使用 `numpy>=1.23.5,<1.27`、`numba==0.59.1` 与 `llvmlite==0.42.0`，以确保 Basic Pitch 在 Linux/Python 3.11 上与 librosa 兼容。请使用与 AstrBot 相同的 Python 环境安装依赖。
+本插件使用当前可用的 `basic-pitch` 版本，并固定使用 `numpy>=1.23.5,<1.27`、`numba==0.59.1`、`llvmlite==0.42.0` 与 `librosa==0.10.2.post1`。该组合已验证可在 Linux/Python 3.11 上导入 Basic Pitch 所需的音频处理模块；请使用与 AstrBot 相同的 Python 环境安装依赖。
 
 ```bash
 python -m pip install --upgrade pip wheel --index-url https://pypi.org/simple --no-cache-dir
@@ -31,9 +31,9 @@ python -m pip install --prefer-binary -r requirements.txt --index-url https://py
 
 ### 共享环境依赖冲突
 
-AstrBot 的插件通常共用同一个 Python 环境。本插件会固定 `numpy>=1.23.5,<1.27`、`numba==0.59.1` 和 `llvmlite==0.42.0`，以避免 Basic Pitch 在 Linux/Python 3.11 上与 librosa 组合时出现 `get_call_template` 错误。
+AstrBot 的插件通常共用同一个 Python 环境。本插件会固定 `numpy>=1.23.5,<1.27`、`numba==0.59.1`、`llvmlite==0.42.0` 和 `librosa==0.10.2.post1`，以避免 Basic Pitch 在 Linux/Python 3.11 上出现 `get_call_template` 错误。
 
-这可能与要求 `numba>=0.60`、不同 `llvmlite` 版本或 `numpy>=2` 的其他音频、科学计算、机器学习插件冲突。部署了这类插件的服务器，建议在安装前检查现有依赖，或将 MIDI 转换迁移到独立 Python 虚拟环境中，以完全隔离 TensorFlow、Numba 和 Librosa 依赖。
+这可能与要求 `numba>=0.60`、不同 `llvmlite` 或 `librosa` 版本、或 `numpy>=2` 的其他音频、科学计算、机器学习插件冲突。部署了这类插件的服务器，建议在安装前检查现有依赖，或将 MIDI 转换迁移到独立 Python 虚拟环境中，以完全隔离 TensorFlow、Numba 和 Librosa 依赖。
 
 ## 配置
 

@@ -4,5 +4,6 @@ setuptools<81
 numpy>=1.23.5,<1.27
 numba==0.59.1
 llvmlite==0.42.0
+librosa==0.10.2.post1
 basic-pitch
 httpx>=0.24.0
