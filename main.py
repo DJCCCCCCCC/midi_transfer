@@ -189,10 +189,6 @@ class MidiTransfer(Star):
         # Set before TensorFlow import and temporarily silence third-party
         # logging, including Numba's first-run compilation diagnostics.
         os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
-        # Numba 0.67's first JIT compilation can terminate this Windows
-        # Python 3.11 process with 0xC0000005. Basic Pitch remains functional
-        # without it, at the cost of a small one-time performance penalty.
-        os.environ.setdefault("NUMBA_DISABLE_JIT", "1")
         previous_levels = {
             name: logging.getLogger(name).level
             for name in ("tensorflow", "numba", "h5py", "absl")
