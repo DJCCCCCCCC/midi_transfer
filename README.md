@@ -29,6 +29,12 @@ python -m pip install --prefer-binary -r requirements.txt --index-url https://py
 
 请固定使用 Python 3.11，例如 `D:\桌面\Code\AstrBot\.venv311\Scripts\python.exe`。首次转录会加载随 `basic-pitch` 安装的模型，可能需要较长初始化时间。不要额外安装 `basic-pitch[tf]`：本插件会使用安装包附带的 TFLite 模型，以避开 TensorFlow SavedModel 的兼容性问题。
 
+### 共享环境依赖冲突
+
+AstrBot 的插件通常共用同一个 Python 环境。安装本插件会在该共享环境中固定 `numba==0.59.1`、`llvmlite==0.42.0` 和 `numpy<1.27`，以确保 Basic Pitch 0.4.0 在 Linux/Python 3.11 上可以运行。大多数普通插件不受影响；但若其他音频、科学计算或机器学习插件要求 `numba>=0.60`、不同版本的 `llvmlite`，或 `numpy>=2`，依赖版本可能冲突。
+
+部署了这类插件的服务器，建议在安装前检查现有依赖，或将本插件改为调用独立 Python 虚拟环境中的 Basic Pitch，以隔离 TensorFlow、Numba、Librosa 等依赖。
+
 ## 配置
 
 AstrBot WebUI 中可设置 `max_file_size_mb`，默认 `50`。超出限制的附件会被拒绝下载和转换。
